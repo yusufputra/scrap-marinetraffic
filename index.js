@@ -15,13 +15,6 @@ app.get("/", function (req, res) {
     res.json({message: "welcome to our service!"})
 });
 
-app.get("/lookup", function (req, res) {
-    marinetraffic.lookup.v1(req.query.term).then((response) => {
-        res.setHeader('Content-Type', 'application/json');
-        res.send(response);
-    });
-});
-
 app.get("/search", function (req, res) {
     marinetraffic.search(req.query.term, (req.query.page) ? req.query.page : 1).then((response) => {
         res.setHeader('Content-Type', 'application/json');
