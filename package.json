@@ -8,7 +8,7 @@
     "dev": "nodemon index.js",
     "start": "node index.js"
   },
-  "author": "Jason Talon",
+  "author": "Yusuf Putra",
   "license": "ISC",
   "devDependencies": {
     "body-parser": "^1.18.3",
