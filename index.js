@@ -2,8 +2,10 @@ const marinetraffic = require("./marinetraffic");
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
+const volleyball = require('volleyball');
 
 app.set('json spaces', 2);
+app.use(volleyball);
 
 app.use(bodyParser.urlencoded({
     extended: true
