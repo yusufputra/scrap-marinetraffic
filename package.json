@@ -1,5 +1,5 @@
 {
-  "name": "marinetraffic-scraper",
+  "name": "scrap-marinetraffic",
   "version": "1.0.0",
   "description": "fetches info from marinetraffic website",
   "main": "index.js",
