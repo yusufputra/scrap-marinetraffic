@@ -11,18 +11,18 @@
   "author": "Yusuf Putra",
   "license": "ISC",
   "devDependencies": {
-    "body-parser": "^1.18.3",
+    "nodemon": "^2.0.20"
+  },
+  "dependencies": {
     "cheerio": "^1.0.0-rc.12",
+    "body-parser": "^1.18.3",
     "express": "^4.16.3",
     "lodash": "^4.17.10",
     "randomstring": "^1.1.5",
     "request": "^2.88.0"
   },
-  "dependencies": {
-    "nodemon": "^2.0.20"
-  },
-  "engines" : { 
-    "npm" : "8.15.0",
-    "node" : "16.17.0"
+  "engines": {
+    "npm": "8.15.0",
+    "node": "16.17.0"
   }
 }
