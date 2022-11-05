@@ -9,6 +9,10 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
+app.get("/", function (req, res) {
+    res.json({message: "welcome to our service!"})
+});
+
 app.get("/lookup", function (req, res) {
     marinetraffic.lookup.v1(req.query.term).then((response) => {
         res.setHeader('Content-Type', 'application/json');
