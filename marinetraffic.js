@@ -209,6 +209,9 @@ module.exports = {
                 payload.voyage.last_port_timestamp = convertTime(
                   payload.voyage.last_port_timestamp
                 );
+                payload.voyage.arrival_time_datetime = convertTime(
+                  payload.voyage.arrival_time_datetime
+                );
                 delete payload.voyage.arrival_port_url;
                 delete payload.voyage.arrival_port_info_label;
                 delete payload.voyage.departure_port_info_label;
