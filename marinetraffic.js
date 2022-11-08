@@ -56,10 +56,18 @@ const getPage = function (main) {
   return page[0].attribs.value;
 };
 
+const convertTime = (currentTime) => {
+  var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
+  const today = new Date(d.setUTCSeconds(currentTime));
+  const date =
+    today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
+  const time =
+    today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+  const dateTime = date + " " + time;
+  return dateTime;
+};
+
 module.exports = {
-  /*
-        Scrape rule created August 2018. 
-    */
   search: function (keyword, page) {
     return new Promise((resolve, reject) => {
       if (!page) page = 1;
@@ -175,13 +183,6 @@ module.exports = {
 
             if (info.values && info) {
               const payload = info.values;
-              const draught = payload.reported_draught;
-              payload.reported_draught = draught
-                .split("<br />")[0]
-                .split(":")[1];
-              payload.max_draught = draught
-              .split("<br />")[1]
-              .split(":")[1];
 
               payload.voyage = {};
               if (info.voyage) {
@@ -199,7 +200,15 @@ module.exports = {
                     payload.voyage[item] = info.voyage[item];
                   }
                 );
-
+                payload.last_pos = convertTime(payload.last_pos);
+                payload.last_pos_tooltip = convertTime(payload.last_pos_tooltip);
+                payload.elapsed = convertTime(payload.elapsed);
+                payload.voyage.departure_port_info_portTime = convertTime(
+                  payload.voyage.departure_port_info_portTime
+                );
+                payload.voyage.last_port_timestamp = convertTime(
+                  payload.voyage.last_port_timestamp
+                );
                 delete payload.voyage.arrival_port_url;
                 delete payload.voyage.arrival_port_info_label;
                 delete payload.voyage.departure_port_info_label;
