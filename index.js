@@ -3,6 +3,13 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const volleyball = require("volleyball");
+const {
+  Parser,
+  transforms: { unwind },
+} = require("json2csv");
+
+const transforms = [unwind({ paths: ["data.light_iw"] })];
+const json2csvParser = new Parser({ delimiter: ",", transforms });
 
 app.set("json spaces", 2);
 app.use(volleyball);
@@ -52,13 +59,20 @@ app.get("/ship/collect/:collectmssi", function (req, res) {
         responseDatas.push({
           shipName: _response.shipname,
           mmsi: mmsi,
-          data: _response,
+          ..._response,
+          ..._response.voyage,
         });
       });
     });
     if (mmsi === mmsiData[mmsiData.length - 1]) {
-      res.setHeader("Content-Type", "application/json");
-      res.send(responseDatas);
+      if (req.query.export === "csv") {
+        const tsv = await json2csvParser.parse(responseDatas);
+        res.attachment("file.csv");
+        res.send(tsv);
+      }else{
+        res.setHeader("Content-Type", "application/json");
+        res.send(responseDatas);
+      }
     }
   });
 });
