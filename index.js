@@ -51,9 +51,15 @@ app.get("/ship/:mmsi", function (req, res) {
 });
 
 app.get("/ship/collect/:collectmssi", function (req, res) {
-  const mmsiData = req.params.collectmssi.split(",");
+  const mmsiData = req.params.collectmssi.split(",").sort();
   const responseDatas = [];
-  mmsiData.forEach(async (mmsi) => {
+  const tempData = [];
+  mmsiData.forEach((mmsi) => {
+    if (!tempData.includes(mmsi)){
+      tempData.push(mmsi);
+    }
+  });
+  tempData.forEach(async (mmsi, i) => {
     await marinetraffic.ship.info.v1(mmsi).then(async (response) => {
       await marinetraffic.ship.info.v2(response.SHIP_ID).then((_response) => {
         responseDatas.push({
@@ -69,7 +75,7 @@ app.get("/ship/collect/:collectmssi", function (req, res) {
         const tsv = await json2csvParser.parse(responseDatas);
         res.attachment("file.csv");
         res.send(tsv);
-      }else{
+      } else {
         res.setHeader("Content-Type", "application/json");
         res.send(responseDatas);
       }
