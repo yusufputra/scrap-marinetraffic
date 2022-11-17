@@ -31,7 +31,8 @@ app.get("/search", function (req, res) {
     .then((response) => {
       res.setHeader("Content-Type", "application/json");
       if(!!req.query.type){
-        res.send({...response, items: response.items.filter((item)=>item.type.toLowerCase().includes(req.query.type.toLowerCase()))})
+        const currentData = response.items.filter((item)=>item.type.toLowerCase().includes(req.query.type.toLowerCase()))
+        res.send({...response, items: currentData , itemCount: currentData.length})
       }else{
         res.send(response);
       }
