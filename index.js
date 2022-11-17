@@ -25,11 +25,17 @@ app.get("/", function (req, res) {
 });
 
 app.get("/search", function (req, res) {
+  console.log(req.query.type)
   marinetraffic
     .search(req.query.term, req.query.page ? req.query.page : 1)
     .then((response) => {
       res.setHeader("Content-Type", "application/json");
-      res.send(response);
+      if(!!req.query.type){
+        res.send({...response, items: response.items.filter((item)=>item.type.toLowerCase().includes(req.query.type.toLowerCase()))})
+      }else{
+        res.send(response);
+      }
+      
     })
     .catch((error) => {
       res.send(error);
