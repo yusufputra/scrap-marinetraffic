@@ -92,10 +92,10 @@ app.get("/ship/collect/:collectmssi", function (req, res) {
           throw e;
         });
     } catch (e) {
+      console.log("error caused by", e)
       res.status(400).json({
         error: "ship info not found",
         message: `please delete ${currentMmsi} from parameters`,
-        errorMessage: e,
       });
       return;
     }
