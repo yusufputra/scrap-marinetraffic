@@ -131,99 +131,114 @@ module.exports = {
   ship: {
     info: {
       v1: function (mmsi) {
-        return new Promise((resolve, reject) => {
-          const options = {
-            method: "GET",
-            url: marineTrafficUrl + "/map/getvesseljson_v3/mmsi:" + mmsi,
-            headers: {
-              "Cache-Control": "no-cache",
-              referer: marineTrafficUrl + "/en/ais/home/",
-              cookie:
-                "SERVERID=www1; vTo=1; CAKEPHP=" +
-                randomstring.generate() +
-                ";",
-            },
-          };
-
-          request(options, function (error, response, body) {
-            if (error || response.statusCode != 200) {
-              reject(error ? error : body);
-              return;
-            }
-
-            const info = JSON.parse(body);
-
-            if (info.data) resolve(info.data.rows[0]);
-            else resolve({});
+        try{
+          return new Promise((resolve, reject) => {
+            const options = {
+              method: "GET",
+              url: marineTrafficUrl + "/map/getvesseljson_v3/mmsi:" + mmsi,
+              headers: {
+                "Cache-Control": "no-cache",
+                referer: marineTrafficUrl + "/en/ais/home/",
+                cookie:
+                  "SERVERID=www1; vTo=1; CAKEPHP=" +
+                  randomstring.generate() +
+                  ";",
+              },
+            };
+  
+            request(options, function (error, response, body) {
+              console.log('v1', error, response.statusCode)
+              if (error || response.statusCode != 200) {
+                reject(error ? error : body);
+                return;
+              }
+  
+              const info = JSON.parse(body);
+  
+              if (info.data) resolve(info.data.rows[0]);
+              else resolve({});
+            });
           });
-        });
+        }catch(e){
+          throw e;
+        }
       },
       v2: function (ship_id) {
-        return new Promise((resolve, reject) => {
-          const options = {
-            method: "GET",
-            url: marineTrafficUrl + "/en/ais/get_info_window_json",
-            qs: {
-              asset_type: "ship",
-              id: ship_id,
-            },
-            headers: {
-              "Cache-Control": "no-cache",
-              "Vessel-Image": "00a9f0706fec2c78894adaa3be4ee154f616",
-            },
-          };
-
-          request(options, function (error, response, body) {
-            if (error || response.statusCode != 200) {
-              reject(error ? error : body);
-              return;
-            }
-
-            const info = JSON.parse(body);
-
-            if (info.values && info) {
-              const payload = info.values;
-
-              payload.voyage = {};
-              if (info.voyage) {
-                _.forEach(
-                  _.filter(Object.keys(info.voyage), (k) => {
-                    return (
-                      _.includes(k, "departure_port") ||
-                      _.includes(k, "arrival_") ||
-                      k == "dest_rep" ||
-                      k == "last_port_timestamp" ||
-                      k == "triangle_pos"
+        try{
+          return new Promise((resolve, reject) => {
+            const options = {
+              method: "GET",
+              url: marineTrafficUrl + "/en/ais/get_info_window_json",
+              qs: {
+                asset_type: "ship",
+                id: ship_id,
+              },
+              headers: {
+                "Cache-Control": "no-cache",
+                "Vessel-Image": "00a9f0706fec2c78894adaa3be4ee154f616",
+              },
+            };
+  
+            try{
+              request(options, function (error, response, body) {
+                console.log('v2', error, response.statusCode)
+                if (error || response.statusCode != 200) {
+                  // throw response.statusCode;
+                  reject(error ? error : body);
+                  return;
+                }
+    
+                const info = JSON.parse(body);
+    
+                if (info.values && info) {
+                  const payload = info.values;
+    
+                  payload.voyage = {};
+                  if (info.voyage) {
+                    _.forEach(
+                      _.filter(Object.keys(info.voyage), (k) => {
+                        return (
+                          _.includes(k, "departure_port") ||
+                          _.includes(k, "arrival_") ||
+                          k == "dest_rep" ||
+                          k == "last_port_timestamp" ||
+                          k == "triangle_pos"
+                        );
+                      }),
+                      (item) => {
+                        payload.voyage[item] = info.voyage[item];
+                      }
                     );
-                  }),
-                  (item) => {
-                    payload.voyage[item] = info.voyage[item];
+                    payload.last_pos = convertTime(payload.last_pos);
+                    payload.last_pos_tooltip = convertTime(payload.last_pos_tooltip);
+                    payload.elapsed = convertTime(payload.elapsed);
+                    payload.voyage.departure_port_info_portTime = convertTime(
+                      payload.voyage.departure_port_info_portTime
+                    );
+                    payload.voyage.last_port_timestamp = convertTime(
+                      payload.voyage.last_port_timestamp
+                    );
+                    payload.voyage.arrival_time_datetime = convertTime(
+                      payload.voyage.arrival_time_datetime
+                    );
+                    delete payload.voyage.arrival_port_url;
+                    delete payload.voyage.arrival_port_info_label;
+                    delete payload.voyage.departure_port_info_label;
+                    delete payload.voyage.departure_port_url;
                   }
-                );
-                payload.last_pos = convertTime(payload.last_pos);
-                payload.last_pos_tooltip = convertTime(payload.last_pos_tooltip);
-                payload.elapsed = convertTime(payload.elapsed);
-                payload.voyage.departure_port_info_portTime = convertTime(
-                  payload.voyage.departure_port_info_portTime
-                );
-                payload.voyage.last_port_timestamp = convertTime(
-                  payload.voyage.last_port_timestamp
-                );
-                payload.voyage.arrival_time_datetime = convertTime(
-                  payload.voyage.arrival_time_datetime
-                );
-                delete payload.voyage.arrival_port_url;
-                delete payload.voyage.arrival_port_info_label;
-                delete payload.voyage.departure_port_info_label;
-                delete payload.voyage.departure_port_url;
-              }
-              delete payload.past_track_url;
-              delete payload.forecast_url;
-
-              resolve(payload);
-            } else resolve(undefined);
+                  delete payload.past_track_url;
+                  delete payload.forecast_url;
+    
+                  resolve(payload);
+                } else resolve(undefined);
+              });
+            }catch(e){
+              throw e;
+            }
           });
-        });
+        }catch(e){
+          throw e;
+        }
       },
     },
   },
