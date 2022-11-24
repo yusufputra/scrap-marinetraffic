@@ -92,17 +92,12 @@ app.get("/ship/collect/:collectmssi", function (req, res) {
           throw e;
         });
     } catch (e) {
-      console.log("error caused by", e)
-      res.status(400).json({
-        error: "ship info not found",
-        message: `please delete ${currentMmsi} from parameters`,
-      });
-      return;
+      console.log("error caused by mmsi ", currentMmsi)
     }
     if (mmsi === mmsiData[mmsiData.length - 1]) {
       if (req.query.export === "csv") {
         const tsv = await json2csvParser.parse(responseDatas);
-        res.attachment("file.csv");
+        res.attachment(`ship-data-${new Date()}.csv`);
         res.send(tsv);
       } else {
         res.setHeader("Content-Type", "application/json");
